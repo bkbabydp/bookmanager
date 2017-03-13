@@ -1,0 +1,6 @@
+django
+requests
+pyquery
+Pillow
+pyBarcode
+gunicorn

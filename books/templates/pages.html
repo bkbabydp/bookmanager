@@ -1,0 +1,28 @@
+{% block pages %}
+
+<nav aria-label="分页栏">
+    <ul class="pagination">
+        <li class="page-item{% if not pages.has_previous %} disabled{% endif %}">
+            <a class="page-link"
+               href="{% if pages.has_previous %}?q={{ keyword }}&page={{ pages.previous_page_number }}{% endif %}"
+               aria-label="前一页">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only">前一页</span>
+            </a>
+        </li>
+        {% for page in pages.paginator.page_range %}
+        <li class="page-item{% if page == pages.number %} active{% endif %}">
+            <a class="page-link" href="?q={{ keyword }}&page={{ page }}">{{ page }}</a></li>
+        {% endfor %}
+        <li class="page-item{% if not pages.has_next %} disabled{% endif %}">
+            <a class="page-link"
+               href="{% if pages.has_next %}?q={{ keyword }}&page={{ pages.next_page_number }}{% endif %}"
+               aria-label="后一页">
+                <span aria-hidden="true">&raquo;</span>
+                <span class="sr-only">后一页</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+{% endblock %}

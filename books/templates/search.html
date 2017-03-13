@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}{% endblock %}
+
+{% block body %}
+
+<section id="header" style="background-color: darkblue">
+    <div class="container">
+        <header>
+            <h1>搜书</h1>
+            <p>
+                在福州实体店数据库，售书网站，和电子书平台中跨站搜索您要的书
+            </p>
+        </header>
+        <div class="col-lg-6 offset-lg-3">
+            <h4></h4>
+            <form role="form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="sr-only" for="bookName">书名关键字</label>
+                    <div class="input-group">
+                        <input type="search" id="bookName" name="q"
+                               placeholder="请输入书名关键字"
+                               value="{% if keyword %}{{ keyword }}{% endif %}"
+                               class="form-control"/>
+                        <span class="input-group-btn">
+                            <input type="submit" value="搜索该书" class="btn btn-primary"/>
+                        </span>
+                    </div>
+                </div>
+            </form>
+            {% if warning %}
+            <div class="alert alert-warning" role="alert">
+                <strong>{{ warning }}</strong>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% if not init %}
+<div class="container">
+    {% if books %}
+    <div class="card">
+        <div class="card-header">
+            {% include 'pages.html' %}
+        </div>
+        <div class="card-block small">
+            <ul class="list-unstyled">
+                {% for book in books %}
+                <li class="mb-4 row border">
+                    <div class="p-2 col-12 lavender border-b">
+                        <h6 class="mb-2">
+                            {{ book.title }}
+                            {% if book.subtitle %}
+                            <small>({{ book.subtitle }})</small>
+                            {% endif %}
+                            {% if book.origin_title %}
+                            <small>({{ book.origin_title }})</small>
+                            {% endif %}
+                            {% if book.ebook_url %}
+                            <span class="badge badge-warning">有电子书</span>
+                            {% endif %}
+                            <small>
+                                豆瓣评分：
+                                {% load my_extras %}
+                                {% ratio book.rating.average book.rating.max 5.0 as score %}
+                                <span class="book-rate-star"
+                                      data-target="#book-rate-score-{{ forloop.counter }}"
+                                      data-score="{{ score }}"></span>
+                                <span id="book-rate-score-{{ forloop.counter }}">{{ score }}</span>
+                                {% if book.rating.numRaters %}
+                                ({{ book.rating.numRaters }} 人)
+                                {% endif %}
+                            </small>
+                        </h6>
+                    </div>
+                    <div class="p-2 col-6 col-md-1">
+                        <h6 class="text-uppercase small font-weight-bold">封面</h6>
+                        <a class=""
+                           href="{{ book.images.large }}"
+                           data-fancybox="book-images"
+                           data-caption="{{ book.title }}">
+                            <img class="img-thumbnail"
+                                 width="120px"
+                                 src="{{ book.image }}"/>
+                        </a>
+                    </div>
+                    <div class="p-2 col-6 col-md-1">
+                        <h6 class="text-uppercase small font-weight-bold">isbn</h6>
+                        <a class=""
+                           href="{% url 'graphic_code:create_barcode' book.isbn10 'isbn10' %}"
+                           data-fancybox="isbn10-images"
+                           data-caption="{{ book.title }}">
+                            <img class="img-thumbnail"
+                                 width="120px"
+                                 src="{% url 'graphic_code:create_barcode' book.isbn10 'isbn10' %}"/>
+                        </a>
+                        <a class=""
+                           href="{% url 'graphic_code:create_barcode' book.isbn13 'isbn13' %}"
+                           data-fancybox="isbn13-images"
+                           data-caption="{{ book.title }}">
+                            <img class="img-thumbnail"
+                                 width="120px"
+                                 src="{% url 'graphic_code:create_barcode' book.isbn13 'isbn13' %}"/>
+                        </a>
+                    </div>
+                    <div class="p-2 col-12 col-md-10">
+
+                        <div class="mb-2">
+                            {% for author in book.author %}
+                            <span class="badge badge-default">{{ author }}</span>
+                            {% endfor %}
+                            {% for translator in book.translator %}
+                            <span class="badge badge-info">{{ translator }}</span>
+                            {% endfor %}
+                            <span class="badge badge-warning">{{ book.publisher }}</span>
+                            <span class="badge badge-success">{{ book.pubdate }}</span>
+                        </div>
+                        <div class="mb-2 linebreaksbr">
+                            {{ book.summary|linebreaksbr }}
+                        </div>
+                        <!--<p>-->
+                        <!--<strong>简介：</strong>-->
+                        <!--{% if book.summary|length > 200 %}-->
+                        <!--<a data-toggle="collapse"-->
+                        <!--href="#collapse-{{ forloop.counter }}"-->
+                        <!--aria-expanded="false"-->
+                        <!--aria-controls="collapse-{{ forloop.counter }}"-->
+                        <!--class="">-->
+                        <!--{{ book.summary|slice:':200'|linebreaksbr }}</a>-->
+                        <!--<span class="collapse" id="collapse-{{ forloop.counter }}">{{ book.summary|slice:'200:'|linebreaksbr}}</span>-->
+                        <!--{% else %}-->
+                        <!--{{ book.summary|linebreaksbr }}-->
+                        <!--{% endif %}-->
+                        <!--</p>-->
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card-footer">
+            {% include 'pages.html' %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
